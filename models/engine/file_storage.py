@@ -23,7 +23,7 @@ class FileStorage:
             for key, value in FileStorage.__objects.items():
                 if value.__class__ == cls:
                     CLSdict[key] = value
-                return CLSdict
+            return CLSdict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -34,7 +34,7 @@ class FileStorage:
         if (obj is None):
             return
         obj_Key = obj.to_dict()['__class__'] + '.' + obj.id
-        if obj_Key in File_Storage.__objects:
+        if obj_Key in FileStorage.__objects:
             del FileStorage.__objects[obj_Key]
 
     def save(self):
