@@ -15,11 +15,20 @@ class BaseModel:
             self.updated_at = datetime.now()
             storage.new(self)
         else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
+            if kwargs.get('updated_at'):
+                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
+                                                         '%Y-%m-%dT%H:%M:%S.%f')
+            else:
+                self.updated_at = datetime.now()
+            if kwargs.get('created_at'):
+                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
+                                                         '%Y-%m-%dT%H:%M:%S.%f')
+            else:
+                self.created_at = datetime.now()
+            if not kwargs.get('id'):
+                self.id = str(uuid.uuid4())
+            if kwargs.get('__class__'):
+                del kwargs['__class__']
             self.__dict__.update(kwargs)
 
     def __str__(self):
@@ -31,6 +40,8 @@ class BaseModel:
         """Updates updated_at with current time when instance is changed"""
         from models import storage
         self.updated_at = datetime.now()
+        if not storage.all().get(self.__class__.__name__ + '.' + self.id):
+            storage.new(self)
         storage.save()
 
     def to_dict(self):
