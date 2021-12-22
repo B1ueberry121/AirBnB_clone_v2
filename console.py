@@ -2,6 +2,7 @@
 """ Console Module """
 import cmd
 import sys
+import re
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -113,15 +114,42 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
+    def param_pros(param):
+        """ Will process a do_create parameter into dict, None on failure """
+        if type(param) is not str:
+            return
+        ls = param.split('=', 1)
+        if len(ls) < 2:
+            return
+        name = ls[0]
+        par = ls[1]
+        if par[0] == '"' and par[-1] == '"':
+            val = str(par[1:-1])
+            val = val.replace('_', ' ')
+        elif re.match("[-+]?\d+$", par):
+            val = int(par)
+        elif re.match("[-+]?\d+.\d+$", par):
+            val = float(par)
+        else:
+            return
+        return {name:val}
+
     def do_create(self, args):
         """ Create an object of any class"""
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+        parlist = args.split()
+        if parlist[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+        resdict = {}
+        for param in parlist:
+            pros = HBNBCommand.param_pros(param)
+            if pros != None:
+                resdict.update(pros)
+        print(resdict)
+        new_instance = HBNBCommand.classes[parlist[0]](kwargs=resdict)
         storage.save()
         print(new_instance.id)
         storage.save()
