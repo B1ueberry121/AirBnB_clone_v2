@@ -15,5 +15,5 @@ class City(BaseModel, Base):
     # initialize class for file/db storage type
     __tablename__ = 'cities'
     name = Column(String(128), nullable=False)
-    state_id = Column(String(60), ForeignKey('states.id'), nullable-False)
+    state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
     places = relationship("Place", backref='cities', cascade="all, delete, delete-orphan")

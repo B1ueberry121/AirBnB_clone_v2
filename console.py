@@ -2,7 +2,6 @@
 """ Console Module """
 import cmd
 import sys
-import re
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -20,15 +19,15 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
+            'BaseModel': BaseModel, 'User': User, 'Place': Place,
+            'State': State, 'City': City, 'Amenity': Amenity,
+            'Review': Review
+            }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
-             'number_rooms': int, 'number_bathrooms': int,
-             'max_guest': int, 'price_by_night': int,
-             'latitude': float, 'longitude': float
+            'number_rooms': int, 'number_bathrooms': int,
+            'max_guest': int, 'price_by_night': int,
+            'latitude': float, 'longitude': float
             }
 
     def preloop(self):
@@ -75,7 +74,7 @@ class HBNBCommand(cmd.Cmd):
                     # check for *args or **kwargs
                     if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
-                        _args = pline
+                                _args = pline
                     else:
                         _args = pline.replace(',', '')
                         # _args = _args.replace('\"', '')
@@ -122,7 +121,7 @@ class HBNBCommand(cmd.Cmd):
             return
         name = ls[0]
         par = ls[1]
-        if par[0] == '"' and par[-1] =='"':
+        if par[0] == '"' and par[-1] == '"':
             val = str(par[1:-1])
             val = val.replace('_', ' ')
         elif re.match("[-+]?\d+$", par):
@@ -135,22 +134,62 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
+        arg_list = args.split(" ")
+        class_name = arg_list[0]
+        if len(args) == 0:
             print("** class name missing **")
-            return
-        parlist = args.split()
-        if parlist[0] not in HBNBCommand.classes:
+        elif class_name in HBNBCommand.classes:
+            tmp_new_obj = eval(class_name)()
+            if len(arg_list) > 1:
+                for elements in arg_list[1:]:
+                    attr_name, val = elements.split("=")
+                    if val == '':
+                        continue
+                    if val[0] == '"' and val[len(val)-1] == '"':
+                        val = val.strip('"')
+                        val = val.replace('_', ' ')
+                        val = val.replace('"', '\"')
+                    elif("." in val):
+                        val = float(val)
+                    else:
+                        val = int(val)
+                    setattr(tmp_new_obj, attr_name, val)
+            storage.new(tmp_new_obj)
+            print(tmp_new_obj.id)
+            storage.save()
+
+        else:
             print("** class doesn't exist **")
+
+    def default(self, arg):
+        '''Runs class commands: <class name>.command()'''
+        arg_list = arg.split('.')
+        if len(arg_list) < 2:
+            print("*** Unknown Syntax", arg)
             return
-        resdict = {}
-        for param in parlist:
-            pros = HBNBCommand.param_pros(param)
-            if pros != None:
-                resdict.update(pros)
-        new_instance = HBNBCommand.classes[parlist[0]](**resdict)
-        new_instance.save()
-        print(new_instance.id)
-        storage.save()
+        else:
+            if arg_list[0] in HBNBCommand.classes:
+                if arg_list[1] == "all()":
+                    self.do_all(arg_list[0])
+                elif arg_list[1] == "count()":
+                    self.do_count(arg_list[0])
+                elif arg_list[1][0:4] == "show":
+                    if len(arg_list[1]) > 6:
+                        try:
+                            self.do_show(arg_list[0] + " " + arg_list[1][5:-1])
+                        except:
+                            print("** no instance found **")
+                    else:
+                        print("** instance id missing **")
+                elif arg_list[1][0:7] == "destroy":
+                    if len(arg_list[1]) > 9:
+                        try:
+                            self.do_destroy(arg_list[0] + " " +
+                                    arg_list[1][8:-1])
+                        except:
+                            print("** no instance found **")
+                    else:
+                        print("** instance id missing **")
 
     def help_create(self):
         """ Help information for the create method """
