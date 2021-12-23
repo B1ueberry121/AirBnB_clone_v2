@@ -2,6 +2,7 @@
 """ Console Module """
 import cmd
 import sys
+import re
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -37,7 +38,6 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -122,7 +122,7 @@ class HBNBCommand(cmd.Cmd):
             return
         name = ls[0]
         par = ls[1]
-        if par[0] == '"' and par[-1] == '"':
+        if par[0] == '"' and par[-1] =='"':
             val = str(par[1:-1])
             val = val.replace('_', ' ')
         elif re.match("[-+]?\d+$", par):
@@ -135,62 +135,22 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        arg_list = arg.split(" ")
-        class_name = arg_list[0]
-        if len(args) == 0:
+        if not args:
             print("** class name missing **")
-        elif class_name in HBNBCommand.classes:
-            tmp_new_obj = eval(class_name)()
-            if len(arg_list) > 1:
-                for elements in arg_list[1:]:
-                    attr_name, val = elements.split("=")
-                    if val == '':
-                        continue
-                    if val[0] == '"' and val[len(val)-1] == '"':
-                        val = val.strip('"')
-                        val = val.replace('_', ' ')
-                        val = val.replace('"', '\"')
-                    elif("." in val):
-                        val = float(val)
-                    else:
-                        val = int(val)
-                    setattr(tmp_new_obj, attr_name, val)
-            storage.new(tmp_new_obj)
-            print(tmp_new_obj.id)
-            storage.save()
-
-        else:
-            print("** class doesn't exist **")
-
-    def default(self, arg):
-        '''Runs class commands: <class name>.command()'''
-        arg_list = arg.split('.')
-        if len(arg_list) < 2:
-            print("*** Unknown Syntax", arg)
             return
-        else:
-            if arg_list[0] in HBNBCommand.classes:
-                if arg_list[1] == "all()":
-                    self.do_all(arg_list[0])
-                elif arg_list[1] == "count()":
-                    self.do_count(arg_list[0])
-                elif arg_list[1][0:4] == "show":
-                    if len(arg_list[1]) > 6:
-                        try:
-                            self.do_show(arg_list[0] + " " + arg_list[1][5:-1])
-                        except:
-                            print("** no instance found **")
-                    else:
-                        print("** instance id missing **")
-                elif arg_list[1][0:7] == "destroy":
-                    if len(arg_list[1]) > 9:
-                        try:
-                            self.do_destroy(arg_list[0] + " " +
-                                            arg_list[1][8:-1])
-                        except:
-                            print("** no instance found **")
-                    else:
-                        print("** instance id missing **")
+        parlist = args.split()
+        if parlist[0] not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+        resdict = {}
+        for param in parlist:
+            pros = HBNBCommand.param_pros(param)
+            if pros != None:
+                resdict.update(pros)
+        new_instance = HBNBCommand.classes[parlist[0]](**resdict)
+        new_instance.save()
+        print(new_instance.id)
+        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -387,4 +347,4 @@ class HBNBCommand(cmd.Cmd):
         print("Usage: update <className> <id> <attName> <attVal>\n")
 
 if __name__ == "__main__":
-    HBNBCommand().cmdloop()
+    HBNBCommand().cmdloop() 
