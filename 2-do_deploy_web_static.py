@@ -5,7 +5,7 @@ using the function do_deploy
 '''
 
 from fabric.api import put, run, env
-from os.path import exists, isdir
+from os.path import exists
 env.hosts = ['34.138.133.115', '52.90.2.123']
 
 
