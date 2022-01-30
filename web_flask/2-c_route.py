@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-''' Module that start's a flask dev server '''
+''' Substituting "_" for spaces '''
 from flask import Flask
 
 app = Flask(__name__)
@@ -15,7 +15,7 @@ def hbnb():
     return "HBNB"
 
 
-@app.route('/c<text>', strict_slashes=False)
+@app.route('/c/<text>', strict_slashes=False)
 def c_is(text):
     text = text.replace("_", " ")
     return "C {}".format(text)
