@@ -22,7 +22,7 @@ def c_is(text):
     return "C {}".format(text)
 
 
-@app.route('/python/(<text>)', strict_slashes=False)
+@app.route('/python/<text>', strict_slashes=False)
 @app.route('/python/', strict_slashes=False)
 def python_is(text=None):
     if text:
@@ -30,7 +30,7 @@ def python_is(text=None):
         return "Python {}".format(text)
     else:
         print("here!")
-        return "Pyhton is cool"
+        return "Python is cool"
 
 
 if __name__ == "__main__":
