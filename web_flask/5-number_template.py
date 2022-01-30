@@ -16,7 +16,7 @@ def hbnb():
 
 
 @app.route('/c/<text>', strict_slashes=False)
-def c_is(text):
+def c_text(text):
     if text:
         text = text.replace("_", " ")
     return "C {}".format(text)
@@ -24,7 +24,7 @@ def c_is(text):
 
 @app.route('/python/<text>', strict_slashes=False)
 @app.route('/python/', strict_slashes=False)
-def python_is(text=None):
+def python_text(text=None):
     if text:
         text = text.replace("_", " ")
         return "Python {}".format(text)
@@ -34,7 +34,7 @@ def python_is(text=None):
 
 
 @app.route('/number/<int:n>', strict_slashes=False)
-def is_num(n):
+def num_n(n):
     if (isinstance(n, int)):
         return "{:d} is a number".format(n)
     else:
