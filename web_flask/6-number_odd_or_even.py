@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-''' Module that Start's a flask dev server '''
-from flask import Flask
+"""module that starts flask dev server"""
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -16,7 +16,7 @@ def hbnb():
 
 
 @app.route('/c/<text>', strict_slashes=False)
-def c_text(text):
+def c_is(text):
     if text:
         text = text.replace("_", " ")
     return "C {}".format(text)
@@ -24,7 +24,7 @@ def c_text(text):
 
 @app.route('/python/<text>', strict_slashes=False)
 @app.route('/python/', strict_slashes=False)
-def python_text(text=None):
+def python_is(text=None):
     if text:
         text = text.replace("_", " ")
         return "Python {}".format(text)
@@ -34,7 +34,7 @@ def python_text(text=None):
 
 
 @app.route('/number/<int:n>', strict_slashes=False)
-def num_n(n):
+def is_num(n):
     if (isinstance(n, int)):
         return "{:d} is a number".format(n)
     else:
@@ -50,16 +50,16 @@ def num_template(n):
 
 
 @app.route('/number_odd_or_even/<int:n>', strict_slashes=False)
-def odd_or_even_template(n):
+def odd_even_template(n):
     if (isinstance(n, int)):
         if n % 2 == 0:
             return render_template('6-number_odd_or_even.html',
                                    number=n, result="even")
-            if n % 2 != 0:
-                return render_template('6-number_odd_or_even.html', number=n,
-                                       result="odd")
-            else:
-                return
+        if n % 2 != 0:
+            return render_template('6-number_odd_or_even.html', number=n,
+                                   result="odd")
+    else:
+        return
 
 
 if __name__ == "__main__":

@@ -1,9 +1,24 @@
 #!/usr/bin/python3
 """fabric file that deploys web static content to my servers"""
-from fabric.api import run, put
+from asyncore import file_dispatcher
+from fabric.api import run, put, local
 import os
+from datetime import datetime
 
 os.environ.hosts = ["35.196.44.201", "18.208.171.12"]
+
+
+def do_pack():
+    """function that creates targz file out of web_static directory"""
+    time = datetime.now().strftime("%Y%m%d%H%M%S")
+    tgzname = "versions/web_static_{}.tgz".format(time)
+    if os.path.isdir("versions") is False:
+        local("mkdir versions")
+    try:
+        local("tar -cvzf {} web_static".format(tgzname))
+        return tgzname
+    except:
+        return None
 
 
 def do_deploy(archive_path):
@@ -27,3 +42,11 @@ def do_deploy(archive_path):
             return False
     else:
         return False
+
+
+def deploy():
+    """function that uses do_pack and do_deploy to deploy web static content"""
+    file_path = do_pack()
+    if file_path is None:
+        return False
+    return do_deploy(file_path)

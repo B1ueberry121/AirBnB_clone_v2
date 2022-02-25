@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-''' Module that start's a flask dev server '''
+"""module that starts flask dev server"""
 from flask import Flask
 
 app = Flask(__name__)
